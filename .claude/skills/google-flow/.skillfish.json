@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "name": "google-flow",
+  "owner": "coreymaypray",
+  "repo": "sloth-skill-tree",
+  "path": "plugins/maycrest-create/skills/google-flow",
+  "branch": "main",
+  "sha": "33dda93d3fe4c5910501561de4605bbdf788e235",
+  "ref": "main",
+  "source": "github:coreymaypray/sloth-skill-tree/plugins/maycrest-create/skills/google-flow"
+}
