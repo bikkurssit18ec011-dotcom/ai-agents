@@ -1,0 +1,36 @@
+branch_code,branch_name,region_office,address,pincode,landline,mobile,email,priority,confidence,notes
+996,R.O. Thiruvananthapuram Urban,-,Regional Office - Thiruvananthapuram Urban,,,,rotvm@ksfe.com,P0,email_confirmed,"Decision-making tier for all urban TVM branches. Start here, not at branch level."
+991,R.O. Thiruvananthapuram Rural,-,Regional Office - Thiruvananthapuram Rural,,,,roatl@ksfe.com,P0,email_confirmed,"Decision-making tier for rural TVM branches (Attingal-side)."
+2,Thiruvananthapuram Main,TVM Urban,"Housing Board Building, Santhi Nagar, Thiruvananthapuram",695001,0471-2330217,9447797002,2@ksfe.com,P1,address_phone_confirmed,"Flagship district branch. Highest footfall + highest chitty volume."
+163,Statue (TVM Evening I),TVM Urban,"KSFE Silver Jubilee Buildings, Statue Junction, Chirakulam Road, Thiruvananthapuram",695001,,9447797163,163@ksfe.com,P1,address_confirmed,"Evening branch - targets working professionals. Strong fit for digital."
+219,Thampanoor (TVM Evening II),TVM Urban,"KSRTC Bus Terminal Complex, Thampanoor, Thiruvananthapuram",695001,,9447797219,219@ksfe.com,P1,address_confirmed,"Evening branch. Same building as KSFE Pravasi Chits HQ office."
+94,Vazhuthacaud,TVM Urban,"Centre Plaza Building, 2nd Floor, Vazhuthacaud P.O, Thiruvananthapuram",695014,0471-2327381,9447797094,94@ksfe.com,P1,fully_confirmed,"Full contact set verified. Affluent catchment."
+15,Kesavadasapuram,TVM Urban,"A.K. Towers, Opp. Kedaram Complex, Pattom Palace P.O, Kesavadasapuram, Thiruvananthapuram",695004,0471-2544832,9447797015,15@ksfe.com,P1,fully_confirmed,"Full contact set verified. Covers Pattom/Kesavadasapuram belt."
+93,Medical College TVM,TVM Urban,"New Trida Centre, 2nd Floor, Medical College P.O, Thiruvananthapuram",695011,0471-2444723,9447797093,93@ksfe.com,P1,address_phone_confirmed,"Salaried healthcare catchment - good chitty subscriber profile."
+202,Sasthamangalam,TVM Urban,"Sharmees Towers, Sasthamangalam, Thiruvananthapuram",695010,,9447797202,202@ksfe.com,P1,address_confirmed,"High-income residential catchment."
+69,Peroorkada,TVM Urban,"Vilayil Building, 1st Floor, Ambalamukku, Peroorkada, Thiruvananthapuram",695005,0471-2437245,9447797069,69@ksfe.com,P1,fully_confirmed,"Has an active Facebook page - already digital-aware. Warm entry point."
+59,Kazhakuttom,TVM Urban,"Gopinath Tower, West Nada, Mahadeva Temple, Kazhakuttom P.O, Thiruvananthapuram",695582,,9447797059,59@ksfe.com,P1,address_confirmed,"Technopark catchment - young salaried audience, best paid-social fit."
+130,Chala,TVM Urban,"Geethanjali, TC 38/2560 2, Aryasala, Chalai P.O, Thiruvananthapuram",695036,0471-2471259,9447797130,130@ksfe.com,P2,fully_confirmed,"Trading/merchant catchment - business chitty angle."
+123,Sreekariyam,TVM Urban,"Sreekariyam, Thiruvananthapuram",695017,,9447797123,123@ksfe.com,P2,code_confirmed,"Student/IT catchment."
+244,Vattiyoorkavu,TVM Urban,"Vattiyoorkavu, Thiruvananthapuram",695013,,9447797244,244@ksfe.com,P2,code_confirmed,
+275,Kodappanakunnu,TVM Urban,"Kudappanakunnu, Thiruvananthapuram",695043,,9447797275,275@ksfe.com,P2,code_confirmed,
+153,Pappanamcode,TVM Urban,"Pappanamcode, Thiruvananthapuram",695018,,9447797153,153@ksfe.com,P2,code_confirmed,
+280,Pravachambalam,TVM Urban,"Pravachambalam, Thiruvananthapuram",695020,,9447797280,280@ksfe.com,P2,code_confirmed,
+139,Pothencode,TVM Urban,"Pothencode, Thiruvananthapuram",695584,,9447797139,139@ksfe.com,P2,code_confirmed,
+287,Mangalapuram,TVM Urban,"Mangalapuram, Thiruvananthapuram",695561,,9447797287,287@ksfe.com,P2,code_confirmed,
+16,Neyyattinkara I,TVM Rural,"Akshaya Shopping Complex, Neyyattinkara",695121,0471-2222336,9447797016,16@ksfe.com,P1,address_phone_confirmed,"Taluk HQ branch - large rural chitty base."
+144,Neyyattinkara II,TVM Rural,"S.N.D.P. Union Buildings, Opp. Municipal Town Hall, Neyyattinkara",695121,0471-2222330,9447797144,144@ksfe.com,P2,address_phone_confirmed,
+310,Neyyattinkara Evening,TVM Rural,"Neyyattinkara",695121,,9447797310,310@ksfe.com,P2,code_confirmed,
+11,Attingal,TVM Rural,"Attingal, Thiruvananthapuram",695101,,9447797011,11@ksfe.com,P1,code_confirmed,"Taluk HQ. Rural RO (roatl@ksfe.com) is named after this branch."
+36,Nedumangad,TVM Rural,"Nedumangad, Thiruvananthapuram",695541,0472-2802411,9447797036,36@ksfe.com,P1,phone_confirmed,"Taluk HQ branch."
+29,Varkala,TVM Rural,"Gopal Building, Overbridge Road, Mythanam Varkala P.O, Thiruvananthapuram",695141,0470-2602445,9447797029,29@ksfe.com,P1,address_phone_confirmed,"Tourism + heavy Gulf-NRI catchment - strong Pravasi Chitty angle."
+109,Balaramapuram Main,TVM Rural,"Balaramapuram, Thiruvananthapuram",695501,,9447797109,109@ksfe.com,P2,email_confirmed,"Handloom cluster - business chitty angle."
+366,Balaramapuram Evening,TVM Rural,"Balaramapuram, Thiruvananthapuram",695501,,9447797366,366@ksfe.com,P3,code_confirmed,
+185,Kattakada,TVM Rural,"Kattakada, Thiruvananthapuram",695572,,9447797185,185@ksfe.com,P2,email_confirmed,
+141,Vellanad,TVM Rural,"Vellanad, Thiruvananthapuram",695543,,9447797141,141@ksfe.com,P2,email_confirmed,
+156,Parassala,TVM Rural,"Parassala, Thiruvananthapuram",695502,,9447797156,156@ksfe.com,P2,email_confirmed,"Border branch - Tamil Nadu spillover catchment."
+106,Kilimanoor,TVM Rural,"Kilimanoor, Thiruvananthapuram",695601,,9447797106,106@ksfe.com,P2,email_confirmed,
+107,Vellarada,TVM Rural,"Ground Floor, Melathil Plaza Panachamoodu, Panachamoodu P.O, Thiruvananthapuram",695505,,9447797107,107@ksfe.com,P2,address_confirmed,
+187,Kanjiramkulam,TVM Rural,"Kanjiramkulam, Thiruvananthapuram",695524,,9447797187,187@ksfe.com,P3,code_confirmed,
+217,Kallambalam,TVM Rural,"Kallambalam, Thiruvananthapuram",695605,,9447797217,217@ksfe.com,P3,code_confirmed,
+239,Kadakkavoor,TVM Rural,"Kadakkavoor, Thiruvananthapuram",695306,,9447797239,239@ksfe.com,P3,code_confirmed,
