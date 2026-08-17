@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 560" role="img" aria-label="Dezmos Digital Marketing">
+  <title>Dezmos Digital Marketing</title>
+  <g fill="none" stroke="currentColor" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Z: top bar, diagonal, bottom bar -->
+    <path d="M78 62 H432" />
+    <path d="M432 62 L74 438" />
+    <path d="M74 438 H406" />
+    <!-- D: stem + bowl -->
+    <path d="M436 62 V438" />
+    <path d="M436 62 H452 a188 188 0 0 1 0 376 H436" />
+  </g>
+  <text x="310" y="524"
+        text-anchor="middle"
+        font-family="Manrope, 'Helvetica Neue', Arial, sans-serif"
+        font-size="36" font-weight="800" letter-spacing="2.8"
+        fill="var(--logo-word, #C9A227)">DEZMOS DIGITALMARKETING</text>
+</svg>
