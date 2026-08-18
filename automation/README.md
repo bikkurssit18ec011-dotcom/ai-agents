@@ -11,7 +11,8 @@ and template — no rewiring.
 ```
 automation/
 ├── n8n/
-│   ├── dezmos-email-automation.workflow.json   <- import this into n8n
+│   ├── dezmos-email-automation.workflow.json   <- the workflow
+│   ├── setup-n8n.py                            <- imports + configures it for you
 │   └── test-logic.js                           <- offline test for the Code nodes
 ├── templates/
 │   ├── ksfe-regional-office.html               <- P0 - the real decision makers
@@ -101,39 +102,69 @@ otherwise. `locality` is the first line of the address column.
 
 ## Setup
 
-### 1. SMTP credential
+> **Verified end-to-end against n8n 2.34.6.** The workflow was imported into a
+> live instance and executed in dry-run mode; the full chain runs green and
+> writes the audit log. The two fixes that took to get there are baked in below.
 
-In n8n: **Credentials → New → SMTP**.
+### Automated: `setup-n8n.py`
 
-| Field | Value |
+One script imports the workflow, creates the SMTP credential, wires it to the
+Send Email node, and rewrites the file paths for your machine. Python 3 stdlib
+only — nothing to install. Re-running **updates** the workflow rather than
+creating a duplicate.
+
+```bash
+# n8n -> Settings -> n8n API -> Create an API key
+export N8N_API_KEY='n8n_api_...'
+export SMTP_PASS='your-app-password'
+
+# see exactly what it would do, without touching n8n
+python3 automation/n8n/setup-n8n.py --dry-run \
+    --smtp-host smtp.zoho.in --smtp-port 587
+
+# do it
+python3 automation/n8n/setup-n8n.py \
+    --smtp-host smtp.zoho.in --smtp-port 587
+```
+
+Useful flags:
+
+| Flag | Purpose |
 |---|---|
-| User | `info@dezmosdigitalmarketing.com` |
-| Password | app password / SMTP key — **not** the mailbox login password |
-| Host | your provider's SMTP host (Google Workspace: `smtp.gmail.com`, Zoho: `smtp.zoho.in`) |
-| Port | `587` |
-| SSL/TLS | off (STARTTLS on 587) |
+| `--data-root` | Repo path **as n8n sees it**. For Docker this is the container-side mount (`/data/dezmos`), not the host path. |
+| `--template` | Swap templates, e.g. `--template ksfe-branch-outreach.html` |
+| `--leads` | Point at a different lead CSV |
+| `--priority` / `--daily-limit` / `--throttle` | Campaign pacing |
+| `--live` | Sets `dryRun=false`. **Without it the workflow imports in dry-run and sends nothing.** |
+| `--skip-credential` | Import the workflow only; wire SMTP by hand |
+| `--dry-run` | Print the plan, write nothing |
 
-Then open the **Send Email** node and select the credential — the exported JSON
-carries the placeholder `REPLACE_WITH_YOUR_SMTP_CREDENTIAL_ID` and will not send
-until you re-select it.
+### Required: let n8n read your files
 
-**Set up SPF, DKIM and DMARC on `dezmosdigitalmarketing.com` before the first
-live send.** Cold mail from a domain without them lands in spam regardless of
-how good the copy is.
+**n8n blocks filesystem access for the Read/Write File node by default.** Without
+this the workflow fails on its first node with `Access to the file is not
+allowed.` — this is the single most likely reason your import "does not work".
 
-### 2. Put the files where n8n can read them
+Set `N8N_RESTRICT_FILE_ACCESS_TO` to the directory holding this repo:
 
-The config paths assume `/data/dezmos/`. For Docker:
+```bash
+# npm / systemd install
+export N8N_RESTRICT_FILE_ACCESS_TO=/path/to/ai-agents
+```
+
+For Docker, pass it alongside the volume mount:
 
 ```bash
 docker run -d --name n8n -p 5678:5678 \
   -v ~/.n8n:/home/node/.n8n \
   -v /path/to/ai-agents:/data/dezmos \
+  -e N8N_RESTRICT_FILE_ACCESS_TO=/data/dezmos \
   -e N8N_SECURE_COOKIE=false \
   docker.n8n.io/n8nio/n8n
 ```
 
-That maps this repo to `/data/dezmos`, so the defaults resolve to:
+That mount makes `--data-root /data/dezmos` the correct value, and the config
+paths resolve to:
 
 | Setting | Resolves to |
 |---|---|
@@ -143,13 +174,31 @@ That maps this repo to `/data/dezmos`, so the defaults resolve to:
 | `suppressionPath` | `/data/dezmos/automation/data/suppression.csv` |
 | `logPath` | `/data/dezmos/automation/data/send-log.csv` |
 
-On **n8n Cloud** there is no filesystem. Replace the three `Read …` file nodes
-with HTTP Request nodes pointing at raw URLs, or with Google Sheets / Google
-Drive nodes. Everything downstream is unchanged.
+On **n8n Cloud** there is no filesystem at all. Replace the three `Read …` file
+nodes with HTTP Request nodes pointing at raw URLs, or with Google Drive / Google
+Sheets nodes. Everything downstream is unchanged.
 
-### 3. Import
+### SMTP credential
 
-**Workflows → Import from File →** `automation/n8n/dezmos-email-automation.workflow.json`.
+`setup-n8n.py` creates this for you. To do it by hand: **Credentials → New → SMTP**.
+
+| Field | Value |
+|---|---|
+| User | `info@dezmosdigitalmarketing.com` |
+| Password | app password / SMTP key — **not** the mailbox login password |
+| Host | Google Workspace `smtp.gmail.com`, Zoho `smtp.zoho.in` |
+| Port | `587` |
+| SSL/TLS | off — 587 uses STARTTLS. Turn it on only for port 465. |
+
+**Set up SPF, DKIM and DMARC on `dezmosdigitalmarketing.com` before the first
+live send.** Cold mail from a domain without them lands in spam regardless of
+how good the copy is.
+
+### Manual import
+
+If you would rather not use the script: **Workflows → Import from File →**
+`automation/n8n/dezmos-email-automation.workflow.json`, then open the Send Email
+node and select your SMTP credential, and fix the five paths in Campaign Config.
 
 ---
 
@@ -170,15 +219,25 @@ Drive nodes. Everything downstream is unchanged.
    lead it accepted and a reason for every one it skipped. Open **Render Email**
    and read the actual HTML that would have gone out.
 
-3. **Go live, small.** Set `dryRun=false` with `priorityFilter=P0` and
-   `dailyLimit=2`. That sends two emails — to the Urban and Rural Regional
+3. **Go live, small.** Re-run the setup script with `--live` (or flip `dryRun`
+   in the UI), keeping `priorityFilter=P0` and `dailyLimit=2`:
+
+   ```bash
+   python3 automation/n8n/setup-n8n.py --live --skip-credential
+   ```
+
+   That sends two emails — to the Urban and Rural Regional
    Offices, the only two confirmed addresses in the file.
 
 4. **Wait a week.** Check bounces and replies before widening.
 
-5. **Widen.** Switch `templatePath` to `ksfe-branch-outreach.html`, set
-   `priorityFilter=P1`, `dailyLimit=5`, `throttleSeconds=120`. Five a day for
-   three days covers the P1 tier.
+5. **Widen.** Five a day for three days covers the P1 tier:
+
+   ```bash
+   python3 automation/n8n/setup-n8n.py --live --skip-credential \
+       --template ksfe-branch-outreach.html \
+       --priority P1 --daily-limit 5 --throttle 120
+   ```
 
 ### Recommended pacing
 
@@ -240,3 +299,6 @@ either add sent addresses to the suppression list, or split the CSV per batch.
   Cross-check against bounce mail in the inbox.
 - **The dry-run path skips the throttle**, so a dry run finishes immediately.
   That is intentional, but it means a dry run does not rehearse the real timing.
+- **`setup-n8n.py` creates a new SMTP credential every time it runs** unless you
+  pass `--skip-credential`. Use that flag on re-runs so you do not accumulate
+  duplicates in the credential list.

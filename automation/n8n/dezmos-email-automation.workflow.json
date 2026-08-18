@@ -390,7 +390,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Turn the loop output into audit rows appended to the send log.\nconst cfg = $('Campaign Config').first().json;\nconst stamp = new Date().toISOString();\nconst status = cfg.dryRun ? 'DRY_RUN' : 'SENT';\n\nconst rows = $input.all().map((item) => ({\n  json: {\n    campaign:    cfg.campaignName,\n    branch_code: item.json.branch_code || '',\n    branch_name: item.json.branch_name || '',\n    email:       item.json.toEmail || '',\n    subject:     item.json.subject || '',\n    status,\n    sent_at:     stamp,\n    error:       '',\n  },\n}));\n\nconsole.log(`[${cfg.campaignName}] ${status}: ${rows.length} message(s)`);\nif (cfg.dryRun) {\n  console.log('DRY RUN - no mail left the server. Set dryRun=false to send for real.');\n}\nreturn rows;"
+        "jsCode": "// Turn the loop output into CSV lines appended to the send log.\n// The rows are serialised here rather than by Convert to File so the append\n// carries no header row and no byte-order mark mid-file.\nconst cfg = $('Campaign Config').first().json;\nconst stamp = new Date().toISOString();\nconst status = cfg.dryRun ? 'DRY_RUN' : 'SENT';\n\nconst esc = (v) => {\n  const s = String(v == null ? '' : v);\n  return /[\",\\n\\r]/.test(s) ? '\"' + s.replace(/\"/g, '\"\"') + '\"' : s;\n};\n\nconst rows = $input.all().map((item) => [\n  cfg.campaignName,\n  item.json.branch_code || '',\n  item.json.branch_name || '',\n  item.json.toEmail || '',\n  item.json.subject || '',\n  status,\n  stamp,\n  '',\n].map(esc).join(','));\n\nconsole.log(`[${cfg.campaignName}] ${status}: ${rows.length} message(s)`);\nif (cfg.dryRun) {\n  console.log('DRY RUN - no mail left the server. Set dryRun=false to send for real.');\n}\n\n// One item: the block of lines to append.\nreturn [{ json: { csvLines: rows.length ? rows.join('\\n') + '\\n' : '' } }];"
       },
       "id": "build-log-rows",
       "name": "Build Log Rows",
@@ -403,9 +403,12 @@
     },
     {
       "parameters": {
-        "operation": "csv",
+        "operation": "toText",
+        "sourceProperty": "csvLines",
         "options": {
-          "fileName": "send-log.csv"
+          "fileName": "send-log.csv",
+          "addBOM": false,
+          "encoding": "utf8"
         }
       },
       "id": "log-to-csv",
