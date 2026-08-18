@@ -1,0 +1,679 @@
+{
+  "name": "Dezmos - Email Outreach Automation",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "campaignName",
+              "value": "ksfe-trivandrum-2026-08",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "leadsCsvPath",
+              "value": "/data/dezmos/leads/ksfe-trivandrum-branches.csv",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "templatePath",
+              "value": "/data/dezmos/automation/templates/ksfe-regional-office.html",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "attachmentPath",
+              "value": "/data/dezmos/deck/Dezmos-KSFE-Performance-Marketing-Proposal.pdf",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "suppressionPath",
+              "value": "/data/dezmos/automation/data/suppression.csv",
+              "type": "string"
+            },
+            {
+              "id": "a6",
+              "name": "logPath",
+              "value": "/data/dezmos/automation/data/send-log.csv",
+              "type": "string"
+            },
+            {
+              "id": "a7",
+              "name": "fromEmail",
+              "value": "info@dezmosdigitalmarketing.com",
+              "type": "string"
+            },
+            {
+              "id": "a8",
+              "name": "fromName",
+              "value": "Dezmos Digital Marketing",
+              "type": "string"
+            },
+            {
+              "id": "a9",
+              "name": "replyTo",
+              "value": "info@dezmosdigitalmarketing.com",
+              "type": "string"
+            },
+            {
+              "id": "a10",
+              "name": "subjectTemplate",
+              "value": "Digital reach for KSFE chitties - {{branch_name}}",
+              "type": "string"
+            },
+            {
+              "id": "a11",
+              "name": "priorityFilter",
+              "value": "P0",
+              "type": "string"
+            },
+            {
+              "id": "a12",
+              "name": "dailyLimit",
+              "value": 2,
+              "type": "number"
+            },
+            {
+              "id": "a13",
+              "name": "throttleSeconds",
+              "value": 90,
+              "type": "number"
+            },
+            {
+              "id": "a14",
+              "name": "dryRun",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "a15",
+              "name": "attachDeck",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "a16",
+              "name": "deckUrl",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "notes": "Every setting for one campaign lives here. Duplicate this workflow per campaign."
+      },
+      "id": "campaign-config",
+      "name": "Campaign Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -260,
+        300
+      ],
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.templatePath }}",
+        "options": {
+          "dataPropertyName": "tplfile"
+        }
+      },
+      "id": "read-template",
+      "name": "Read Template",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "tplfile",
+        "destinationKey": "templateHtml",
+        "options": {}
+      },
+      "id": "template-to-text",
+      "name": "Template To Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        180,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $('Campaign Config').first().json.suppressionPath }}",
+        "options": {}
+      },
+      "id": "read-suppression",
+      "name": "Read Suppression",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        400,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "csv",
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "id": "suppression-to-rows",
+      "name": "Suppression To Rows",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        620,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $('Campaign Config').first().json.leadsCsvPath }}",
+        "options": {}
+      },
+      "id": "read-leads-csv",
+      "name": "Read Leads CSV",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        840,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "csv",
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "id": "leads-to-rows",
+      "name": "Leads To Rows",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Build the send list: validate, filter by priority, drop suppressed and\n// duplicates, then cap at the daily limit. Everything it rejects is logged\n// so a short send is never silent.\nconst cfg = $('Campaign Config').first().json;\nconst leads = $('Leads To Rows').all().map(i => i.json);\n\nconst suppressed = new Set(\n  $('Suppression To Rows').all()\n    .map(i => String(i.json.email || '').trim().toLowerCase())\n    .filter(Boolean)\n);\n\nconst allowed = String(cfg.priorityFilter || '')\n  .split(',').map(s => s.trim().toUpperCase()).filter(Boolean);\n\nconst EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/;\nconst seen = new Set();\nconst eligible = [];\nconst skipped = [];\n\nfor (const lead of leads) {\n  const email = String(lead.email || '').trim().toLowerCase();\n  const priority = String(lead.priority || '').trim().toUpperCase();\n  const skip = (reason) =>\n    skipped.push({ email: email || '(blank)', branch: lead.branch_name, reason });\n\n  if (!email)                                   { skip('no email address');        continue; }\n  if (!EMAIL_RE.test(email))                    { skip('malformed email');         continue; }\n  if (allowed.length && !allowed.includes(priority)) {\n                                                  skip(`priority ${priority} excluded`); continue; }\n  if (suppressed.has(email))                    { skip('on suppression list');     continue; }\n  if (seen.has(email))                          { skip('duplicate in CSV');        continue; }\n\n  seen.add(email);\n  eligible.push({ json: { ...lead, email } });\n}\n\nconst limit = Number(cfg.dailyLimit) > 0 ? Number(cfg.dailyLimit) : eligible.length;\nconst toSend = eligible.slice(0, limit);\n\nconsole.log(`[${cfg.campaignName}] leads=${leads.length} eligible=${eligible.length} ` +\n            `sending=${toSend.length} skipped=${skipped.length} dryRun=${cfg.dryRun}`);\nfor (const s of skipped) console.log(`  SKIP ${s.email} (${s.branch}) - ${s.reason}`);\nif (eligible.length > toSend.length) {\n  console.log(`  HELD ${eligible.length - toSend.length} lead(s) by dailyLimit=${limit}`);\n}\n\nreturn toSend;"
+      },
+      "id": "build-send-list",
+      "name": "Build Send List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $('Campaign Config').first().json.attachmentPath }}",
+        "options": {
+          "dataPropertyName": "deck"
+        }
+      },
+      "id": "read-deck-pdf",
+      "name": "Read Deck PDF",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "loop-over-leads",
+      "name": "Loop Over Leads",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1500,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Render one email: substitute {{placeholders}} in the HTML template and the\n// subject line, and derive a plain-text alternative for deliverability.\nconst cfg  = $('Campaign Config').first().json;\nconst tpl  = $('Template To Text').first().json.templateHtml;\nconst lead = $json;\n\nconst isRegionalOffice = /^R\\.?O\\.?/i.test(String(lead.branch_name || ''));\n\nconst vars = {\n  branch_name:       lead.branch_name  || 'your branch',\n  branch_code:       lead.branch_code  || '',\n  contact_name:      isRegionalOffice ? 'Sir/Madam' : 'Branch Manager',\n  locality:          String(lead.address || '').split(',')[0].trim()\n                       || lead.branch_name || 'your area',\n  region_office:     lead.region_office && lead.region_office !== '-'\n                       ? `the ${lead.region_office} Regional Office`\n                       : 'the Regional Office',\n  campaign:          cfg.campaignName,\n  sender_name:       cfg.fromName,\n  sender_email:      cfg.fromEmail,\n  deck_url:          cfg.deckUrl || '',\n  unsubscribe_email: cfg.fromEmail,\n};\n\nconst render = (s) =>\n  String(s == null ? '' : s)\n    .replace(/\\{\\{\\s*([a-z_]+)\\s*\\}\\}/gi, (m, k) => (k in vars ? vars[k] : m));\n\nconst html = render(tpl);\nconst subject = render(cfg.subjectTemplate);\n\n// Unresolved placeholders mean a template/CSV mismatch - fail loudly.\nconst leftover = html.match(/\\{\\{\\s*[a-z_]+\\s*\\}\\}/gi);\nif (leftover) {\n  throw new Error(`Unresolved placeholders for ${lead.email}: ${[...new Set(leftover)].join(', ')}`);\n}\n\nconst text = html\n  .replace(/<!--[\\s\\S]*?-->/g, '')\n  .replace(/<(style|script)[\\s\\S]*?<\\/\\1>/gi, '')\n  .replace(/<br\\s*\\/?>/gi, '\\n')\n  .replace(/<\\/(p|tr|div|h[1-6])>/gi, '\\n\\n')\n  .replace(/<[^>]+>/g, '')\n  .replace(/&mdash;/g, '-').replace(/&ldquo;|&rdquo;/g, '\"')\n  .replace(/&#8377;/g, 'INR ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')\n  .replace(/[ \\t]{2,}/g, ' ')\n  .replace(/\\n{3,}/g, '\\n\\n')\n  .trim();\n\nreturn {\n  json: {\n    branch_code: lead.branch_code,\n    branch_name: lead.branch_name,\n    priority:    lead.priority,\n    toEmail:     lead.email,\n    subject,\n    html,\n    text,\n  },\n};"
+      },
+      "id": "render-email",
+      "name": "Render Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "id": "attach-deck",
+      "name": "Attach Deck",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1940,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dryrun-check",
+              "leftValue": "={{ $('Campaign Config').first().json.dryRun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "dry-run",
+      "name": "Dry Run?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2160,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "preview-only",
+      "name": "Preview Only",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Campaign Config').first().json.fromName }} <{{ $('Campaign Config').first().json.fromEmail }}>",
+        "toEmail": "={{ $json.toEmail }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "both",
+        "text": "={{ $json.text }}",
+        "html": "={{ $json.html }}",
+        "options": {
+          "replyTo": "={{ $('Campaign Config').first().json.replyTo }}",
+          "attachments": "={{ $('Campaign Config').first().json.attachDeck ? 'deck' : '' }}",
+          "appendAttribution": false
+        }
+      },
+      "id": "send-email",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2400,
+        400
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "REPLACE_WITH_YOUR_SMTP_CREDENTIAL_ID",
+          "name": "Dezmos SMTP (info@dezmosdigitalmarketing.com)"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "amount": "={{ $('Campaign Config').first().json.throttleSeconds }}",
+        "unit": "seconds"
+      },
+      "id": "throttle",
+      "name": "Throttle",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2620,
+        400
+      ],
+      "webhookId": "dezmos-throttle-wait"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Turn the loop output into audit rows appended to the send log.\nconst cfg = $('Campaign Config').first().json;\nconst stamp = new Date().toISOString();\nconst status = cfg.dryRun ? 'DRY_RUN' : 'SENT';\n\nconst rows = $input.all().map((item) => ({\n  json: {\n    campaign:    cfg.campaignName,\n    branch_code: item.json.branch_code || '',\n    branch_name: item.json.branch_name || '',\n    email:       item.json.toEmail || '',\n    subject:     item.json.subject || '',\n    status,\n    sent_at:     stamp,\n    error:       '',\n  },\n}));\n\nconsole.log(`[${cfg.campaignName}] ${status}: ${rows.length} message(s)`);\nif (cfg.dryRun) {\n  console.log('DRY RUN - no mail left the server. Set dryRun=false to send for real.');\n}\nreturn rows;"
+      },
+      "id": "build-log-rows",
+      "name": "Build Log Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "csv",
+        "options": {
+          "fileName": "send-log.csv"
+        }
+      },
+      "id": "log-to-csv",
+      "name": "Log To CSV",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1940,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ $('Campaign Config').first().json.logPath }}",
+        "dataPropertyName": "data",
+        "options": {
+          "append": true
+        }
+      },
+      "id": "write-send-log",
+      "name": "Write Send Log",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        20
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Campaign Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campaign Config": {
+      "main": [
+        [
+          {
+            "node": "Read Template",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Deck PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Template": {
+      "main": [
+        [
+          {
+            "node": "Template To Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template To Text": {
+      "main": [
+        [
+          {
+            "node": "Read Suppression",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Suppression": {
+      "main": [
+        [
+          {
+            "node": "Suppression To Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Suppression To Rows": {
+      "main": [
+        [
+          {
+            "node": "Read Leads CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Leads CSV": {
+      "main": [
+        [
+          {
+            "node": "Leads To Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leads To Rows": {
+      "main": [
+        [
+          {
+            "node": "Build Send List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Send List": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Leads": {
+      "main": [
+        [
+          {
+            "node": "Build Log Rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Render Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Email": {
+      "main": [
+        [
+          {
+            "node": "Attach Deck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Deck PDF": {
+      "main": [
+        [
+          {
+            "node": "Attach Deck",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Attach Deck": {
+      "main": [
+        [
+          {
+            "node": "Dry Run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry Run?": {
+      "main": [
+        [
+          {
+            "node": "Preview Only",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preview Only": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Throttle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Throttle": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Log Rows": {
+      "main": [
+        [
+          {
+            "node": "Log To CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log To CSV": {
+      "main": [
+        [
+          {
+            "node": "Write Send Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "dezmos-email-automation"
+  },
+  "tags": []
+}
