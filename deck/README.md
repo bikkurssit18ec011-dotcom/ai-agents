@@ -35,7 +35,7 @@ Every figure is pulled from **Meta Ads Manager, ad account `590232006572483`**,
 maximum date range, via the Meta MCP connector. Nothing is modelled, estimated,
 or illustrative. The source array is `CAMPAIGNS` in `build_deck.py`.
 
-Seven real KSFE campaigns across **two branches**:
+Seven real KSFE campaigns:
 
 | Branch | Campaigns | Period |
 |---|---|---|
@@ -52,8 +52,30 @@ campaign delivering 66 enquiries, more than the previous three combined.
 
 **Note on Kolayad:** it is in **Kannur** district, not Thiruvananthapuram. The
 deck presents it accurately as a KSFE branch without claiming it is local. Only
-Pettah is a Trivandrum branch. If a prospect asks, the honest framing is
-"two KSFE branches across two districts."
+Pettah is a Trivandrum branch.
+
+### KSFE Mandapathinkadav
+
+Named in the deck as an existing client — on the cover chip ("3 KSFE branches
+already served"), in the slide 3 client line, in the slide 9 governance bullet,
+and in both email templates.
+
+**It carries no performance figures, deliberately.** A search of ad account
+`590232006572483` at campaign, ad set and ad level found nothing for
+Mandapathinkadav under any spelling. Every number in this deck is exported from
+Meta Ads Manager, and inventing a row for a branch with no data would break that
+— in a document going to a government institution that can ask for the export.
+
+So the deck claims the *relationship*, which is true, and attributes no *metrics*
+to it. The slide 4 footnote says so plainly: "Mandapathinkadav work is reported
+separately." The aggregate stats (₹13,659 / 443,357 / 149 / ₹73) remain exactly
+the Pettah + Kolayad figures.
+
+**To give it real numbers**, find where the work is recorded — a different Meta
+ad account, Page-level boosted posts, or a non-Meta channel — and add a row to
+`CAMPAIGNS` in `build_deck.py`. The totals and the slide 3 stats recompute
+automatically. If a prospect asks why it is not in the table, the honest answer
+is that the table covers campaigns run through this ad account.
 
 ---
 
