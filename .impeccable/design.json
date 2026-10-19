@@ -1,0 +1,19 @@
+{
+  "source": "DESIGN.md",
+  "shadows": {
+    "overlay-drawer": "-12px 0 40px rgba(31, 15, 7, .2)",
+    "overlay-dialog": "0 24px 64px rgba(31, 15, 7, .3)",
+    "overlay-toast": "0 10px 30px rgba(31, 15, 7, .25)",
+    "overlay-bar": "0 -8px 28px rgba(31, 15, 7, .14)"
+  },
+  "motion": {
+    "ease": "cubic-bezier(.16, 1, .3, 1)",
+    "entrance": { "distance": "24px", "duration": "800ms", "stagger": "70ms" },
+    "stage-crossfade": "700ms",
+    "stage-drift": { "scale": [1, 1.035], "duration": "16s" },
+    "footer-name": { "scale": [0.92, 1], "timeline": "view(), entry 0% to cover 45%" },
+    "reduced-motion": "all travel removed, content shown"
+  },
+  "focus": "3px solid #2f6b1f, offset 3px",
+  "selection": "background #e9d57a, text #1f0f07"
+}

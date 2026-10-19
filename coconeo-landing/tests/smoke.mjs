@@ -31,9 +31,9 @@ for (const vp of [{ name: "desktop", width: 1440, height: 900 }, { name: "mobile
 
   check(errors.length === 0, `${vp.name}: no JS errors ${errors.join(" | ")}`);
   // Anything sticking out past the right edge (body clips overflow, so check elements directly)
-  const overflow = await page.evaluate(() => Math.max(0, ...[...document.querySelectorAll("main *")].filter((el) => !el.closest(".gallery__thumbs, .announce")).map((el) => el.getBoundingClientRect().right - window.innerWidth)));
+  const overflow = await page.evaluate(() => Math.max(0, ...[...document.querySelectorAll("main *")].filter((el) => !el.closest(".table-scroll")).map((el) => el.getBoundingClientRect().right - window.innerWidth)));
   check(overflow <= 0, `${vp.name}: no horizontal scroll (overflow ${overflow}px)`);
-  check(await page.locator("[data-gallery-thumbs] button").count() === 6, `${vp.name}: 6 gallery thumbnails`);
+  check(await page.locator("[data-thumbs] button").count() === 7, `${vp.name}: 7 stage thumbnails`);
   check(await page.locator(".review").count() === 6, `${vp.name}: 6 reviews rendered`);
   const broken = await page.evaluate(() => [...document.images].filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.src));
   check(broken.length === 0, `${vp.name}: no broken images ${broken.join(",")}`);
@@ -41,18 +41,25 @@ for (const vp of [{ name: "desktop", width: 1440, height: 900 }, { name: "mobile
   await page.screenshot({ path: `${outDir}/${vp.name}-hero.png` });
   await page.screenshot({ path: `${outDir}/${vp.name}-full.png`, fullPage: true });
 
+  // Live 24°C test
+  await page.locator("[data-temp]").fill("18");
+  check(/solid/.test(await page.textContent("[data-temp-msg]")), `${vp.name}: 24°C test shows solid at 18°C`);
+  // Uses tabs
+  await page.click('[data-use="1"]');
+  check(/hair/i.test(await page.textContent("[data-use-title]")), `${vp.name}: uses tab switches to hair`);
   // Interactions
   await page.locator(".pack").nth(1).click();
   check((await page.textContent("[data-price]")) === "₹849", `${vp.name}: 2L pack updates price`);
-  await page.locator(".buy-row [data-add-to-cart]").click();
+  await page.locator(".buy [data-add-to-cart]").click();
   await page.waitForTimeout(400);
   check((await page.textContent("[data-cart-count]")) === "1", `${vp.name}: cart count = 1`);
   await page.screenshot({ path: `${outDir}/${vp.name}-cart.png` });
   await page.click("[data-cart-close]");
+  await page.waitForTimeout(450);
   await page.click('[data-filter="Hair"]');
   check(await page.locator(".review").count() === 2, `${vp.name}: Hair filter shows 2 reviews`);
   await page.fill("[data-pin]", "695122"); await page.click("[data-pin-check]");
-  check(/2–3 days/.test(await page.textContent("[data-pin-msg]")), `${vp.name}: pincode check`);
+  check(/Kerala pincode/.test(await page.textContent("[data-pin-msg]")), `${vp.name}: pincode check`);
   await page.locator("#reviews").scrollIntoViewIfNeeded();
   await page.screenshot({ path: `${outDir}/${vp.name}-reviews.png` });
   await page.close();

@@ -326,5 +326,5 @@ def og():
 if __name__ == "__main__":
     import os
     os.makedirs(OUT, exist_ok=True)
-    combo(2, "combo-2.webp", "SAVE 8%"); combo(3, "combo-3.webp", "SAVE 12%")
+    combo(2, "combo-2.webp", "2 BOTTLES"); combo(3, "combo-3.webp", "3 BOTTLES")
     infographic(); label_closeup(); og()

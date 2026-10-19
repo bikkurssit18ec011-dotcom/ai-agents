@@ -19,6 +19,7 @@ Open `index.html` in a browser, or serve the folder (`npx http-server .`).
 | `assets/img/` | Product photos and generated mockups |
 | `tools/cutout.py` | Cuts the bottle out of the white studio shot |
 | `tools/mockups.py` | Generates the combo-pack, infographic, label close-up and OG images |
+| `assets/img/bottle-liquid.webp`, `bottle-solid.webp` | The real bottle, liquid and set-white, for the 24°C test |
 | `tools/build-preview.py` | Inlines CSS/JS into `dist/preview.html` for the hosted preview |
 | `tests/smoke.mjs` | Playwright smoke test (desktop + mobile), `npm test` |
 
@@ -28,9 +29,8 @@ Open `index.html` in a browser, or serve the folder (`npx http-server .`).
    and real totals, then set `isPlaceholder: false`. Until then the page shows a
    "preview content" note and leaves the star rating out of the search-engine data.
    Publishing invented reviews breaks Indian consumer-protection rules and marketplace policies.
-2. **Prices are placeholders** (`config.js`: ₹449 / ₹849 / ₹1,199).
-3. **"Cold pressed"**: the current bottle label says "Premium Coconut Oil". Make sure the
-   cold-pressed claim matches how the oil is made, or update the label.
+2. **Prices are placeholders** (`config.js`: ₹449 / ₹849 / ₹1,199, with MRP and save %). Free-delivery threshold is off (`freeShippingAbove: null`) until you set a real one.
+3. **"Cold pressed"** is confirmed by the owner; the bottle label itself still says "Premium Coconut Oil".
 4. **Shelf life** differs between photos (5 months on the studio shot, 9 months on the
    lifestyle shots). The page avoids a number; confirm which is correct.
 5. Point `checkoutUrl` at the real cart, and wire the pincode check to your courier API.

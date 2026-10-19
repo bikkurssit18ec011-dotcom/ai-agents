@@ -16,6 +16,7 @@ out = f"""<title>Coco Neo Coconut Oil</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 {fonts}
+<script>document.documentElement.classList.add("js")</script>
 <style>
 {css}
 </style>
