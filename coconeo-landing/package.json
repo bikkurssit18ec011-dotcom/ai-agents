@@ -1,0 +1,12 @@
+{
+  "name": "coconeo-landing",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/smoke.mjs",
+    "mockups": "python3 tools/mockups.py"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}
