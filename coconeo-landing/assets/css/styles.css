@@ -337,7 +337,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .foot__legal { padding-bottom: 96px; }
 }
 @media (max-width: 560px) {
-  .sheet, .slip { padding: 28px 20px; }
+  .sheet, .slip { padding: 24px 16px; }
   .assure { grid-template-columns: minmax(0, 1fr); }
   .uses__cells { grid-template-columns: minmax(0, 1fr); }
   .foot__info { grid-template-columns: minmax(0, 1fr); }
@@ -350,4 +350,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .buy .lead { font-size: var(--s-body); }
   .foot__photo img { object-position: 50% 0; }
   .buy__actions .btn--tone { flex-basis: 100%; }
+}
+.rating { flex-wrap: wrap; row-gap: 8px; }
+.sample-tag { white-space: nowrap; }
+@media (max-width: 560px) {
+  .menu td.wraps { white-space: normal; }
+  .rating .sample-tag { flex-basis: auto; order: 3; }
+  .rating > span:nth-child(2) { white-space: nowrap; }
 }
