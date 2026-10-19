@@ -102,7 +102,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .buy { gap: 20px !important; }
 .buy .lead { max-width: 36ch; }
 .rating { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; font-size: var(--s-small); justify-self: start; }
-.stars { position: relative; display: inline-block; line-height: 0; color: #ddd6c8; }
+.stars { position: relative; display: inline-block; flex: none; white-space: nowrap; line-height: 0; color: #ddd6c8; }
 .stars svg { width: 18px; height: 18px; fill: currentColor; }
 .stars__fg { position: absolute; inset: 0 auto 0 0; overflow: hidden; white-space: nowrap; color: var(--star); }
 .stars--lg svg { width: 26px; height: 26px; }
@@ -290,6 +290,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* Entrances: visible without script; with script, parts rise in as their section arrives */
 .js .reveal { opacity: .2; transform: translateY(20px); transition: opacity .8s var(--ease), transform .8s var(--ease); transition-delay: var(--d, 0ms); }
 .js .reveal.in { opacity: 1; transform: none; }
+.js .buy .reveal { opacity: 1; transform: none; transition: none; } /* first screen: no entrance */
 .js .review { opacity: .2; transform: translateY(16px); transition: opacity .7s var(--ease), transform .7s var(--ease); transition-delay: var(--d, 0ms); }
 .js .review.in { opacity: 1; transform: none; }
 
@@ -314,7 +315,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .bar__inner { gap: 12px; }
   .stage-wrap { grid-template-columns: minmax(0, 1fr); }
   .stage { position: relative; top: 0; height: auto; padding: 0 max(var(--gutter), env(safe-area-inset-right, 0px)) 0 max(var(--gutter), env(safe-area-inset-left, 0px)); }
-  .stage__frame { height: 42svh; }
+  .stage__frame { height: 34svh; }
   .stage { gap: 8px; }
   .stage__thumbs { gap: 6px; }
   .read { padding-top: 20px !important; }
@@ -345,5 +346,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   .menu .lead-dots { width: 12px; padding: 0 4px; }
   .menu .lead-dots::after { display: none; }
   .menu tbody th[scope=row] { width: 100%; padding-right: 12px; }
+  .menu td:last-child { white-space: nowrap; }
+  .buy .lead { font-size: var(--s-body); }
+  .foot__photo img { object-position: 50% 0; }
   .buy__actions .btn--tone { flex-basis: 100%; }
 }

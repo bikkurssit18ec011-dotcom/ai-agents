@@ -261,5 +261,6 @@
   if (!R.isPlaceholder) schema.aggregateRating = { "@type": "AggregateRating", ratingValue: R.average, reviewCount: R.total };
   $("#product-schema").textContent = JSON.stringify(schema);
 
+  if (C.pricesArePlaceholder) $$("[data-price-sample]").forEach((el) => (el.hidden = false));
   renderPrice(); renderCart(); renderReviews(); renderTemp();
 })();

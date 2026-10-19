@@ -7,7 +7,8 @@ window.COCONEO = {
   // Where "Buy it now" / "Checkout" should go. Point this at your store's cart or checkout URL.
   checkoutUrl: "https://www.coconeo.in/cart",
 
-  // PLACEHOLDER PRICES — confirm before launch.
+  // PLACEHOLDER PRICES — confirm before launch. While true, the page shows a "Preview prices" tag.
+  pricesArePlaceholder: true,
   packs: [
     { id: "1l", label: "1 L", sub: "1 bottle", litres: 1, price: 449, mrp: 499, img: "assets/img/packshot.webp" },
     { id: "2l", label: "2 L", sub: "Pack of 2", litres: 2, price: 849, mrp: 998, img: "assets/img/mockups/combo-2.webp", tag: "Popular" },
